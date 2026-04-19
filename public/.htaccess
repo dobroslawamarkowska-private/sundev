@@ -1,0 +1,22 @@
+# Force HTTPS
+RewriteEngine On
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Pretty URLs (remove .html extension)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)\.html$ /$1 [R=301,L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ $1.html [L,QSA]
+
+# Cache static assets 1 year
+<FilesMatch "\.(css|js|png|jpg|jpeg|gif|ico|svg|woff2?)$">
+  Header set Cache-Control "max-age=31536000, public, immutable"
+</FilesMatch>
+
+# Compress text files
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/xml text/xml
+</IfModule>

@@ -1,0 +1,45 @@
+---
+description: Core project context and architecture for sundev.pl
+alwaysApply: true
+---
+
+# sundev.pl — Project Context
+
+Personal-professional micro blog at **sundev.pl**, hosted on **Kylos Silver** shared hosting (Apache, PHP available, no persistent Node.js). Built with **Astro** in static output mode — content authored in Markdown, deployed as pre-built HTML.
+
+## Stack
+- **Astro** with `output: 'static'`
+- **TypeScript** strict mode
+- **Content Collections** for blog posts and articles
+- **GitHub Actions** CI/CD: push to `main` → build → rsync to Kylos Silver via SSH
+
+## Publishing Workflow
+```
+write .md → git push main → GitHub Actions → Kylos
+```
+- `main` = production; every push deploys
+- `draft: true` frontmatter = excluded from build
+- `draft/post-name` branches = unpublished work
+
+## Project Layout
+```
+src/
+  content/
+    blog/       ← short posts (.md)
+    articles/   ← long-form articles (.md)
+  pages/        ← .astro route files
+  layouts/      ← BaseLayout.astro and variants
+  styles/       ← global.css only
+public/         ← static assets
+dist/           ← build output (gitignored, deploy this)
+```
+
+## Rules
+- Static-first: no `client:` directives unless truly needed
+- Semantic HTML5, accessible by default
+- Images via `astro:assets` `<Image>` for optimization
+- No `any` in TypeScript
+- All content frontmatter: `title`, `date` (ISO 8601), `description`, `draft` (bool)
+- `draft: true` entries excluded from production build
+- Scoped component styles preferred over global
+- Keep CSS simple — no utility-class sprawl unless Tailwind is explicitly adopted

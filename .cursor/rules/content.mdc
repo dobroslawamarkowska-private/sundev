@@ -1,0 +1,39 @@
+---
+description: Content authoring rules for blog posts and articles
+globs: src/content/**/*.md,src/content/**/*.mdx
+alwaysApply: false
+---
+
+# Content Authoring Guidelines
+
+## Frontmatter Schema
+
+Every content file must have valid frontmatter:
+
+```yaml
+---
+title: "Your Title Here"
+date: 2026-01-15          # ISO 8601, required
+description: "One sentence summary for SEO and listing pages"
+tags: [tag1, tag2]        # optional
+draft: false              # true = excluded from build
+---
+```
+
+## Blog Posts (`src/content/blog/`)
+- Short, focused entries (300–1500 words)
+- Filename = URL slug: `2026-01-15-my-post.md`
+- Conversational but professional tone
+- Polish or English (indicate language in frontmatter if needed)
+
+## Articles (`src/content/articles/`)
+- Long-form, technical or professional content (1500+ words)
+- Filename = URL slug: `topic-name.md`
+- Include subheadings (`##`, `###`) for navigation
+- Code blocks with language identifier: ` ```typescript `
+
+## Markdown Conventions
+- H1 is the title (from frontmatter) — do NOT add an `# H1` in body
+- Use `##` and `###` for sections within content
+- Prefer reference links for external URLs at the bottom of the file
+- Images: `![alt text](../../assets/image.jpg)` — place images in `src/assets/`

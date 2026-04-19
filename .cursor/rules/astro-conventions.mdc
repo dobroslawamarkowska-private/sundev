@@ -1,0 +1,57 @@
+---
+description: Astro component and page conventions for sundev.pl
+globs: src/**/*.astro,src/**/*.ts,astro.config.mjs
+alwaysApply: false
+---
+
+# Astro Conventions
+
+## Component Frontmatter
+```astro
+---
+// Always use TypeScript
+import type { CollectionEntry } from 'astro:content';
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+const { post } = Astro.props;
+---
+```
+
+## Content Collections
+- Define schemas in `src/content/config.ts` using Zod
+- Access via `getCollection('blog')` / `getCollection('articles')`
+- Filter drafts in production: `entry.data.draft !== true`
+
+## Routing
+- `src/pages/blog/[slug].astro` — dynamic routes from collection
+- `src/pages/articles/[slug].astro` — dynamic routes from collection
+- Use `getStaticPaths()` for all dynamic routes
+
+## Layouts
+- Single base layout: `src/layouts/BaseLayout.astro` with `<slot />`
+- Props: `title`, `description` (for `<meta>`)
+- Include `<link rel="canonical">` in every page
+
+## Styling
+- Scoped styles with `<style>` in component by default
+- Global styles only in `src/styles/global.css`, imported in BaseLayout
+- CSS custom properties for theme tokens (colors, spacing, typography)
+- Mobile-first, clean typography — this is a reading-focused site
+
+## Performance Rules
+- `output: 'static'` in astro.config.mjs — always
+- No client-side JS unless interactive component required
+- Use `<Image>` from `astro:assets` for all `<img>` tags
+- Inline critical CSS if possible; defer non-critical
+
+## astro.config.mjs Baseline
+```js
+import { defineConfig } from 'astro/config';
+
+export default defineConfig({
+  site: 'https://sundev.pl',
+  output: 'static',
+  integrations: [],
+});
+```
