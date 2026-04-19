@@ -1,68 +1,80 @@
 # sundev.pl — Project Instructions
 
-## Project Overview
-Personal-professional micro blog hosted at **sundev.pl** on **Kylos Silver** shared hosting (Apache, PHP 5.6–8.1, no persistent Node.js). Content is authored in **Markdown** files and published as clean static HTML via **Astro**.
+## What This Is
+Personal-professional micro blog at **sundev.pl**. Content authored in Markdown, built to static HTML by Astro, deployed to Kylos Silver shared hosting via GitHub Actions.
 
-## Architecture
-- **Framework**: Astro (static output mode — `output: 'static'`)
-- **Content**: `.md` / `.mdx` files in `src/content/blog/` and `src/content/articles/`
-- **Styling**: Plain CSS or Tailwind (TBD)
-- **Build**: `npm run build` → `dist/` folder
-- **Deploy**: rsync or FTP `dist/` to Kylos document root
+## Stack
+- **Astro 4.x** — static output, TypeScript strict, Node 20
+- **Plain CSS** — CSS custom properties in `src/styles/global.css`, no framework
+- **Content Collections** — `blog` (short posts) and `articles` (long-form), both in `src/content/`
+- **GitHub Actions** — builds on every push to `main`, deploys via rsync over SSH to Kylos
+
+## How Hosting Works
+Kylos Silver runs Apache and serves static files. It has no Node.js runtime. Astro runs only at build time (on GitHub Actions). The `dist/` folder — plain HTML/CSS/JS — is what lands on the server. No build tools on Kylos, ever.
 
 ## Project Structure
 ```
 sundev/
+├── .github/workflows/deploy.yml  ← CI/CD: push main → build → rsync Kylos
+├── .cursor/rules/                ← Cursor AI rules
+├── public/
+│   ├── .htaccess                 ← HTTPS redirect, pretty URLs, cache headers
+│   ├── robots.txt
+│   └── favicon.svg
 ├── src/
+│   ├── assets/                   ← images (Astro-optimized at build time)
 │   ├── content/
-│   │   ├── blog/        ← short posts (.md)
-│   │   └── articles/    ← long-form articles (.md)
+│   │   ├── config.ts             ← Zod schemas for blog + articles
+│   │   ├── blog/                 ← short posts (.md), filename = slug
+│   │   └── articles/             ← long-form (.md), filename = slug
+│   ├── layouts/
+│   │   └── BaseLayout.astro      ← single layout used by all pages
 │   ├── pages/
 │   │   ├── index.astro
-│   │   ├── blog/
-│   │   └── articles/
-│   ├── layouts/
-│   │   └── BaseLayout.astro
+│   │   ├── about.astro
+│   │   ├── rss.xml.ts
+│   │   ├── blog/[slug].astro
+│   │   ├── blog/index.astro
+│   │   ├── articles/[slug].astro
+│   │   └── articles/index.astro
 │   └── styles/
-├── public/              ← static assets (images, fonts, favicon)
-├── dist/                ← build output (deploy this)
+│       └── global.css            ← all global styles + CSS custom properties
 ├── astro.config.mjs
 ├── package.json
-└── PLAN.md
+├── PLAN.md
+└── tsconfig.json
+```
+
+## Content Frontmatter
+```yaml
+---
+title: "Title Here"
+date: 2026-04-19        # ISO 8601, required
+description: "One sentence for SEO and listing pages"
+tags: [tag1, tag2]      # optional array
+draft: false            # true = excluded from build
+lang: en                # optional, en or pl
+---
 ```
 
 ## Coding Standards
-- TypeScript strict mode
-- Astro components for layouts and UI; plain Markdown for content
-- No client-side JS unless absolutely necessary (Astro's `client:` directives are opt-in)
-- CSS: scoped component styles preferred; global styles only in `src/styles/global.css`
-- Semantic HTML5 — accessibility matters
-- Images: use `<Image>` from `astro:assets` for automatic optimization
-- All content frontmatter must include: `title`, `date` (ISO 8601), `description`, `draft` (bool)
-
-## Deployment (GitHub Actions → Kylos Silver)
-- **Trigger**: push to `main` branch
-- **Pipeline**: `.github/workflows/deploy.yml` — build → rsync to Kylos
-- **Target**: Kylos Silver SSH, `~/domains/sundev.pl/public_html/`
-- **Secrets in GitHub**: `KYLOS_SSH_KEY`, `KYLOS_HOST`, `KYLOS_USER`, `KYLOS_PATH`
-- **SSL**: free cert via Kylos panel (Let's Encrypt)
-- Never commit `dist/` — CI builds it
-
-## Content Authoring
-- Posts go in `src/content/blog/` — filename becomes slug
-- Articles go in `src/content/articles/` — filename becomes slug
-- Use frontmatter: `title`, `date`, `description`, `tags`, `draft`
-- `draft: true` files are excluded from production build
+- No `any` TypeScript
+- No `client:` directives unless truly needed
+- No inline styles — use CSS custom properties from `global.css`
+- Images: `<Image>` from `astro:assets`, never bare `<img>`
+- Semantic HTML5
 
 ## Git & Publishing Workflow
-- `main` branch = production (every push auto-deploys)
-- `draft/post-name` branches = work-in-progress posts
-- `feature/...` branches = site changes
-- Merge to `main` to publish
-- `draft: true` in frontmatter also excludes from build
+- `main` = production — every push triggers deploy
+- `draft/post-name` branches = unpublished work in progress
+- `feature/...` = site changes
+- `draft: true` in frontmatter also excludes from build regardless of branch
+
+## Deployment Secrets (GitHub repo → Settings → Secrets)
+`KYLOS_SSH_KEY`, `KYLOS_HOST`, `KYLOS_USER`, `KYLOS_PATH`
 
 ## Do Not
-- Add client-side frameworks (React, Vue, Svelte) unless needed
-- Commit `dist/` to git — CI builds it
-- Add features not in the plan without asking
-- Use `any` TypeScript type
+- Commit `dist/` — CI builds it
+- Add Node/npm to Kylos — it only serves static files
+- Install React, Vue, or Svelte unless there's a real need
+- Add `any` TypeScript type

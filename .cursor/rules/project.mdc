@@ -1,45 +1,55 @@
 ---
-description: Core project context and architecture for sundev.pl
+description: Core project context and architecture for sundev.pl — always loaded
 alwaysApply: true
 ---
 
-# sundev.pl — Project Context
+# sundev.pl
 
-Personal-professional micro blog at **sundev.pl**, hosted on **Kylos Silver** shared hosting (Apache, PHP available, no persistent Node.js). Built with **Astro** in static output mode — content authored in Markdown, deployed as pre-built HTML.
+Personal-professional micro blog. Markdown content → Astro static build → Apache on Kylos Silver.
 
 ## Stack
-- **Astro** with `output: 'static'`
-- **TypeScript** strict mode
-- **Content Collections** for blog posts and articles
-- **GitHub Actions** CI/CD: push to `main` → build → rsync to Kylos Silver via SSH
+- **Astro 4.x**, `output: 'static'`, TypeScript strict, **Node 20**
+- **Plain CSS** — CSS custom properties only, no framework
+- `@astrojs/sitemap` + `@astrojs/rss` installed
+- **GitHub Actions** CI/CD: push `main` → `npm run build` → rsync `dist/` to Kylos via SSH
+
+## How Hosting Works
+Kylos Silver = Apache serving static files. **No Node.js on the server.** Astro only runs on GitHub Actions at build time. The output is pure HTML/CSS/JS. Never suggest server-side Astro features (`output: 'server'`, API routes, SSR adapters).
 
 ## Publishing Workflow
 ```
 write .md → git push main → GitHub Actions → Kylos
 ```
-- `main` = production; every push deploys
-- `draft: true` frontmatter = excluded from build
-- `draft/post-name` branches = unpublished work
+- `main` branch = production; every push auto-deploys
+- `draft/post-name` branches = work in progress
+- `draft: true` in frontmatter = excluded from build
 
-## Project Layout
-```
-src/
-  content/
-    blog/       ← short posts (.md)
-    articles/   ← long-form articles (.md)
-  pages/        ← .astro route files
-  layouts/      ← BaseLayout.astro and variants
-  styles/       ← global.css only
-public/         ← static assets
-dist/           ← build output (gitignored, deploy this)
-```
+## Key Files
+| File | Role |
+|------|------|
+| `src/content/config.ts` | Zod schemas for `blog` + `articles` collections |
+| `src/layouts/BaseLayout.astro` | Single layout — props: `title`, `description`, optional `canonicalURL` |
+| `src/styles/global.css` | All global styles + CSS custom properties |
+| `public/.htaccess` | HTTPS redirect, pretty URLs, asset cache headers |
+| `.github/workflows/deploy.yml` | CI/CD pipeline |
 
-## Rules
-- Static-first: no `client:` directives unless truly needed
-- Semantic HTML5, accessible by default
-- Images via `astro:assets` `<Image>` for optimization
-- No `any` in TypeScript
-- All content frontmatter: `title`, `date` (ISO 8601), `description`, `draft` (bool)
-- `draft: true` entries excluded from production build
-- Scoped component styles preferred over global
-- Keep CSS simple — no utility-class sprawl unless Tailwind is explicitly adopted
+## CSS Custom Properties (defined in `global.css`)
+```css
+--color-bg, --color-surface, --color-text, --color-muted, --color-accent, --color-border
+--font-sans, --font-mono
+--text-sm, --text-base, --text-lg, --text-xl, --text-2xl, --text-3xl
+--space-1 through --space-16
+--radius
+--max-prose  (68ch)
+```
+Dark mode via `@media (prefers-color-scheme: dark)` — the tokens switch automatically.
+
+## CSS Classes (defined in `global.css`)
+`.container`, `.prose`, `.post-list`, `.post-item`, `.post-header`, `.post-meta`, `.tags`, `.tag`, `.section-heading`
+
+## Constraints
+- No `any` TypeScript
+- No `client:` directives unless essential
+- No inline styles — use CSS custom properties
+- Images: `<Image>` from `astro:assets`, never bare `<img>`
+- Never commit `dist/`

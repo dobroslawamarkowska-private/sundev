@@ -7,33 +7,43 @@ alwaysApply: false
 # Content Authoring Guidelines
 
 ## Frontmatter Schema
-
-Every content file must have valid frontmatter:
-
 ```yaml
 ---
 title: "Your Title Here"
-date: 2026-01-15          # ISO 8601, required
-description: "One sentence summary for SEO and listing pages"
+date: 2026-04-19          # ISO 8601, required
+description: "One sentence — used in listings and meta description"
 tags: [tag1, tag2]        # optional
-draft: false              # true = excluded from build
+draft: false              # true = excluded from build and deploy
+lang: en                  # optional: en (default) or pl
 ---
 ```
+`date`, `title`, `description`, and `draft` are required by the Zod schema in `src/content/config.ts`.
 
 ## Blog Posts (`src/content/blog/`)
 - Short, focused entries (300–1500 words)
-- Filename = URL slug: `2026-01-15-my-post.md`
+- Filename becomes the URL slug: `2026-04-19-my-post.md` → `/blog/2026-04-19-my-post`
 - Conversational but professional tone
-- Polish or English (indicate language in frontmatter if needed)
+- Can be in Polish or English — use `lang: pl` for Polish posts
 
 ## Articles (`src/content/articles/`)
 - Long-form, technical or professional content (1500+ words)
-- Filename = URL slug: `topic-name.md`
-- Include subheadings (`##`, `###`) for navigation
-- Code blocks with language identifier: ` ```typescript `
+- Filename = topic slug: `how-this-site-is-built.md` → `/articles/how-this-site-is-built`
+- Use `##` and `###` headings to structure for navigation
+- Code blocks must include a language: ` ```typescript ` not ` ``` `
 
 ## Markdown Conventions
-- H1 is the title (from frontmatter) — do NOT add an `# H1` in body
-- Use `##` and `###` for sections within content
-- Prefer reference links for external URLs at the bottom of the file
-- Images: `![alt text](../../assets/image.jpg)` — place images in `src/assets/`
+- **No `# H1` in the body** — the title comes from frontmatter and is rendered by the layout
+- Start body content from `##` sections or plain paragraphs
+- External links: prefer reference-style at the bottom of the file
+- Images: place in `src/assets/`, reference with relative path:
+  ```md
+  ![alt text](../../assets/my-image.jpg)
+  ```
+  Astro will optimize these at build time via `<Image>`.
+
+## Publishing Checklist
+- [ ] `draft: false`
+- [ ] `date` is correct (ISO 8601)
+- [ ] `description` is one clear sentence
+- [ ] No `# H1` in the body
+- [ ] Committed and pushed to `main`

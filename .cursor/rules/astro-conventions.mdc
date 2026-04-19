@@ -1,15 +1,60 @@
 ---
-description: Astro component and page conventions for sundev.pl
+description: Astro component, page, and config conventions for sundev.pl
 globs: src/**/*.astro,src/**/*.ts,astro.config.mjs
 alwaysApply: false
 ---
 
 # Astro Conventions
 
-## Component Frontmatter
+## astro.config.mjs (actual)
+```js
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+
+export default defineConfig({
+  site: 'https://sundev.pl',
+  output: 'static',
+  integrations: [sitemap()],
+});
+```
+Keep `output: 'static'` — Kylos has no Node.js runtime.
+
+## BaseLayout Props
 ```astro
 ---
-// Always use TypeScript
+interface Props {
+  title: string;
+  description: string;
+  canonicalURL?: string;   // defaults to Astro.url.href
+}
+---
+```
+
+## Content Collections — Access Pattern
+```ts
+// Filter drafts (always do this in production pages)
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+```
+
+## Dynamic Routes
+```astro
+---
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+```
+
+## Component Props — Always Type Explicitly
+```astro
+---
 import type { CollectionEntry } from 'astro:content';
 interface Props {
   post: CollectionEntry<'blog'>;
@@ -18,40 +63,21 @@ const { post } = Astro.props;
 ---
 ```
 
-## Content Collections
-- Define schemas in `src/content/config.ts` using Zod
-- Access via `getCollection('blog')` / `getCollection('articles')`
-- Filter drafts in production: `entry.data.draft !== true`
-
-## Routing
-- `src/pages/blog/[slug].astro` — dynamic routes from collection
-- `src/pages/articles/[slug].astro` — dynamic routes from collection
-- Use `getStaticPaths()` for all dynamic routes
-
-## Layouts
-- Single base layout: `src/layouts/BaseLayout.astro` with `<slot />`
-- Props: `title`, `description` (for `<meta>`)
-- Include `<link rel="canonical">` in every page
-
 ## Styling
-- Scoped styles with `<style>` in component by default
-- Global styles only in `src/styles/global.css`, imported in BaseLayout
-- CSS custom properties for theme tokens (colors, spacing, typography)
-- Mobile-first, clean typography — this is a reading-focused site
+- Use CSS custom properties from `global.css` — never hardcode colors, sizes, or spacing
+- Scoped `<style>` blocks for component-specific styles
+- Global classes (`.prose`, `.container`, `.post-list`, etc.) are defined in `global.css` — use them directly, don't redefine
+- No Tailwind, no CSS-in-JS
 
-## Performance Rules
-- `output: 'static'` in astro.config.mjs — always
-- No client-side JS unless interactive component required
-- Use `<Image>` from `astro:assets` for all `<img>` tags
-- Inline critical CSS if possible; defer non-critical
+## RSS Feed (`src/pages/rss.xml.ts`)
+Uses `@astrojs/rss`. Combines both `blog` and `articles` collections, sorted by date.
 
-## astro.config.mjs Baseline
-```js
-import { defineConfig } from 'astro/config';
+## Sitemap
+Generated automatically by `@astrojs/sitemap` at build time → `dist/sitemap-index.xml`.
 
-export default defineConfig({
-  site: 'https://sundev.pl',
-  output: 'static',
-  integrations: [],
-});
-```
+## What to Avoid
+- `output: 'server'` or `output: 'hybrid'`
+- SSR adapters (Node, Vercel, Netlify, etc.)
+- `client:load` / `client:idle` unless genuinely needed
+- Bare `<img>` — use `<Image>` from `astro:assets`
+- `any` TypeScript type
