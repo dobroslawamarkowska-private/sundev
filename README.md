@@ -4,6 +4,11 @@ Source code for [sundev.pl](https://sundev.pl) — a personal-professional micro
 
 Built with [Astro](https://astro.build), deployed as static HTML to Kylos Silver shared hosting via GitHub Actions.
 
+## License
+
+Site code: [MIT](LICENSE)
+Content (posts, articles): [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) — share with attribution, no commercial use
+
 ## Stack
 
 - **Astro 4** — static site generator, Markdown-first
