@@ -25,7 +25,7 @@ npm run build    # build to dist/
 npm run preview  # preview the build
 ```
 
-Requires Node 18+.
+Requires **Node 20** (matches CI; use `nvm use` or similar if needed).
 
 ## Writing Content
 
@@ -34,7 +34,7 @@ Requires Node 18+.
 ```markdown
 ---
 title: "Post Title"
-date: 2026-04-19
+date: 2026-04-20
 description: "One sentence summary."
 tags: [tag1, tag2]
 draft: false
@@ -45,7 +45,7 @@ Post body here. No H1 — the title comes from frontmatter.
 
 **New article** — create `src/content/articles/slug.md` with the same frontmatter.
 
-Set `draft: true` to keep a post out of the build while you're working on it.
+Set `draft: true` to keep a post out of the build while working on it.
 
 ## Publishing
 
@@ -55,19 +55,20 @@ git commit -m "post: my post title"
 git push origin main
 ```
 
-GitHub Actions builds the site and deploys `dist/` to Kylos automatically (~30 seconds).
+GitHub Actions builds the site and deploys `dist/` to Kylos automatically (~1 min).
 
 ## Deployment Setup (one-time)
 
-1. Generate a deploy key: `ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/sundev_deploy`
-2. Add the **public key** to Kylos panel → SSH Keys
-3. Add these secrets to the GitHub repo (Settings → Secrets → Actions):
+1. In DirectAdmin → **FTP Management** → create a dedicated FTP account scoped to `domains/sundev.pl/public_html`
+2. In GitHub: **Settings → Secrets and variables → Actions**, add:
 
 | Secret | Value |
 |--------|-------|
-| `KYLOS_SSH_KEY` | Contents of `~/.ssh/sundev_deploy` (private key) |
-| `KYLOS_HOST` | SSH hostname from Kylos panel |
-| `KYLOS_USER` | SSH username |
-| `KYLOS_PATH` | Remote path, e.g. `~/domains/sundev.pl/public_html` |
+| `FTP_HOST` | `mojom.kylos.pl` |
+| `FTP_USER` | FTP account username |
+| `FTP_PASSWORD` | FTP account password |
+| `FTP_PATH` | `/domains/sundev.pl/public_html/` |
 
-4. Enable free SSL for sundev.pl in the Kylos panel (Let's Encrypt).
+3. Enable free SSL for the domain in DirectAdmin (Let's Encrypt).
+
+The deploy pipeline uses `lftp` over FTPS (encrypted) — no third-party actions.

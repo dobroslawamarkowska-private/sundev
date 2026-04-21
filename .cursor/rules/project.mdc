@@ -11,7 +11,7 @@ Personal-professional micro blog. Markdown content → Astro static build → Ap
 - **Astro 4.x**, `output: 'static'`, TypeScript strict, **Node 20**
 - **Plain CSS** — CSS custom properties only, no framework
 - `@astrojs/sitemap` + `@astrojs/rss` installed
-- **GitHub Actions** CI/CD: push `main` → `npm run build` → rsync `dist/` to Kylos via SSH
+- **GitHub Actions** CI/CD: push `main` → `npm run build` → FTPS upload via `lftp` to Kylos
 
 ## How Hosting Works
 Kylos Silver = Apache serving static files. **No Node.js on the server.** Astro only runs on GitHub Actions at build time. The output is pure HTML/CSS/JS. Never suggest server-side Astro features (`output: 'server'`, API routes, SSR adapters).
@@ -31,7 +31,7 @@ write .md → git push main → GitHub Actions → Kylos
 | `src/layouts/BaseLayout.astro` | Single layout — props: `title`, `description`, optional `canonicalURL` |
 | `src/styles/global.css` | All global styles + CSS custom properties |
 | `public/.htaccess` | HTTPS redirect, pretty URLs, asset cache headers |
-| `.github/workflows/deploy.yml` | CI/CD pipeline |
+| `.github/workflows/deploy.yml` | CI/CD pipeline — FTPS deploy via `lftp` |
 
 ## CSS Custom Properties (defined in `global.css`)
 ```css

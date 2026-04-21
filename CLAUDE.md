@@ -7,7 +7,7 @@ Personal-professional micro blog at **sundev.pl**. Content authored in Markdown,
 - **Astro 4.x** — static output, TypeScript strict, Node 20
 - **Plain CSS** — CSS custom properties in `src/styles/global.css`, no framework
 - **Content Collections** — `blog` (short posts) and `articles` (long-form), both in `src/content/`
-- **GitHub Actions** — builds on every push to `main`, deploys via rsync over SSH to Kylos
+- **GitHub Actions** — builds on every push to `main`, deploys via FTPS (`lftp`) to Kylos
 
 ## How Hosting Works
 Kylos Silver runs Apache and serves static files. It has no Node.js runtime. Astro runs only at build time (on GitHub Actions). The `dist/` folder — plain HTML/CSS/JS — is what lands on the server. No build tools on Kylos, ever.
@@ -15,7 +15,7 @@ Kylos Silver runs Apache and serves static files. It has no Node.js runtime. Ast
 ## Project Structure
 ```
 sundev/
-├── .github/workflows/deploy.yml  ← CI/CD: push main → build → rsync Kylos
+├── .github/workflows/deploy.yml  ← CI/CD: push main → build → FTPS to Kylos
 ├── .cursor/rules/                ← Cursor AI rules
 ├── public/
 │   ├── .htaccess                 ← HTTPS redirect, pretty URLs, cache headers
@@ -71,7 +71,7 @@ lang: en                # optional, en or pl
 - `draft: true` in frontmatter also excludes from build regardless of branch
 
 ## Deployment Secrets (GitHub repo → Settings → Secrets)
-`KYLOS_SSH_KEY`, `KYLOS_HOST`, `KYLOS_USER`, `KYLOS_PATH`
+`FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`, `FTP_PATH`
 
 ## Do Not
 - Commit `dist/` — CI builds it

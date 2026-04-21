@@ -8,7 +8,7 @@ A personal-professional micro blog at **sundev.pl** — Markdown-authored conten
 ## Architecture: Astro (Static) + GitHub Actions CI/CD
 
 ```
-write .md  →  git push  →  GitHub Actions builds  →  rsync to Kylos
+write .md  →  git push  →  GitHub Actions builds  →  FTPS to Kylos
 ```
 
 - Content and code live in a **GitHub repo** (Cursor ↔ GitHub integrated)
@@ -77,18 +77,20 @@ Setting `draft: true` in frontmatter also excludes a post from the build regardl
 
 ## Phase 6 — CI/CD with GitHub Actions
 
-### One-time Setup (manual, ~30 min)
+### One-time Setup (manual, ~15 min)
 
-1. **Kylos side:**
-   - Log into Kylos panel → SSH keys → add deploy public key
-   - Note: `KYLOS_HOST`, `KYLOS_USER`, `KYLOS_PATH` (e.g. `~/domains/sundev.pl/public_html`)
+1. **Kylos side (DirectAdmin):**
+   - **FTP Management** → create a dedicated FTP account scoped to `domains/sundev.pl/public_html`
+   - Note the FTP hostname (`mojom.kylos.pl`), username, and password
 
 2. **GitHub side:**
-   - `Settings → Secrets → Actions` — add:
-     - `KYLOS_SSH_KEY` — private deploy key (Ed25519)
-     - `KYLOS_HOST` — SSH hostname
-     - `KYLOS_USER` — SSH username
-     - `KYLOS_PATH` — remote document root path
+   - `Settings → Secrets and variables → Actions` — add:
+     - `FTP_HOST` — `mojom.kylos.pl`
+     - `FTP_USER` — FTP account username
+     - `FTP_PASSWORD` — FTP account password
+     - `FTP_PATH` — `/domains/sundev.pl/public_html/`
+
+> **Why FTPS and not SSH/rsync?** Kylos Silver shared hosting requires password + key two-factor auth for SSH interactive sessions, which blocks automated deployments. FTPS via `lftp` works reliably and uses no third-party GitHub Actions.
 
 ### `.github/workflows/deploy.yml`
 
@@ -102,6 +104,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -110,18 +113,27 @@ jobs:
           node-version: 20
           cache: npm
 
-      - run: npm ci
-      - run: npm run build
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Deploy to Kylos
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.KYLOS_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.KYLOS_HOST }}
-          REMOTE_USER: ${{ secrets.KYLOS_USER }}
-          TARGET: ${{ secrets.KYLOS_PATH }}
-          SOURCE: dist/
-          ARGS: --delete
+      - name: Build
+        run: npm run build
+
+      - name: Deploy to Kylos via FTPS
+        env:
+          FTP_HOST:     ${{ secrets.FTP_HOST }}
+          FTP_USER:     ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH:     ${{ secrets.FTP_PATH }}
+        run: |
+          sudo apt-get install -y lftp
+          lftp -e "
+            set ftp:ssl-force true;
+            set ssl:verify-certificate false;
+            open -u $FTP_USER,$FTP_PASSWORD $FTP_HOST;
+            mirror --reverse --delete --exclude .htpasswd dist/ $FTP_PATH;
+            bye
+          "
 ```
 
 ### `public/.htaccess` (copied to `dist/` at build time)
