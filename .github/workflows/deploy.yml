@@ -22,12 +22,18 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Deploy to Kylos via SSH
-        uses: easingthemes/ssh-deploy@main
-        with:
-          SSH_PRIVATE_KEY: ${{ secrets.KYLOS_SSH_KEY }}
-          REMOTE_HOST:     ${{ secrets.KYLOS_HOST }}
-          REMOTE_USER:     ${{ secrets.KYLOS_USER }}
-          TARGET:          ${{ secrets.KYLOS_PATH }}
-          SOURCE:          dist/
-          ARGS:            --delete --exclude='.htpasswd'
+      - name: Deploy to Kylos via FTPS
+        env:
+          FTP_HOST:     ${{ secrets.FTP_HOST }}
+          FTP_USER:     ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_PATH:     ${{ secrets.FTP_PATH }}
+        run: |
+          sudo apt-get install -y lftp
+          lftp -e "
+            set ftp:ssl-force true;
+            set ssl:verify-certificate false;
+            open -u $FTP_USER,$FTP_PASSWORD $FTP_HOST;
+            mirror --reverse --delete --exclude .htpasswd dist/ $FTP_PATH;
+            bye
+          "
