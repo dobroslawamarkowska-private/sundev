@@ -33,7 +33,7 @@ jobs:
           cat > /tmp/deploy.lftp << EOF
           set ftp:ssl-force true
           set ssl:verify-certificate false
-          open -u "$FTP_USER" "$FTP_PASSWORD" "$FTP_HOST"
+          open -u "$FTP_USER,$FTP_PASSWORD" "$FTP_HOST"
           mirror --reverse --delete --exclude .htpasswd dist/ $FTP_PATH
           bye
           EOF
