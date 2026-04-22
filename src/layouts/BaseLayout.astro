@@ -36,6 +36,17 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
 
     <!-- RSS -->
     <link rel="alternate" type="application/rss+xml" title={siteName} href="/rss.xml" />
+    <script is:inline>
+      (() => {
+        const KEY = 'theme';
+        const saved = localStorage.getItem(KEY);
+        if (saved === 'dark' || saved === 'light') {
+          document.documentElement.setAttribute('data-theme', saved);
+        } else {
+          document.documentElement.removeAttribute('data-theme');
+        }
+      })();
+    </script>
   </head>
   <body>
     <header>
@@ -45,6 +56,7 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
           <a href="/blog">Blog</a>
           <a href="/articles">Articles</a>
           <a href="/about">About</a>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Theme: System">System</button>
         </nav>
       </div>
     </header>
@@ -64,5 +76,52 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
         </p>
       </div>
     </footer>
+    <script>
+      import {
+        THEME_KEY,
+        getThemeLabels,
+        nextThemeMode,
+        normalizeThemeMode,
+      } from '../utils/theme-mode.js';
+
+      const root = document.documentElement;
+      const toggle = document.getElementById('theme-toggle');
+      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      if (toggle) {
+        const getStoredMode = () => normalizeThemeMode(localStorage.getItem(THEME_KEY));
+
+        const applyMode = (mode) => {
+          if (mode === 'light' || mode === 'dark') {
+            root.setAttribute('data-theme', mode);
+            localStorage.setItem(THEME_KEY, mode);
+          } else {
+            root.removeAttribute('data-theme');
+            localStorage.removeItem(THEME_KEY);
+          }
+        };
+
+        const renderButton = (mode) => {
+          const labels = getThemeLabels(mode);
+          toggle.textContent = labels.nextLabel;
+          toggle.setAttribute('aria-label', `Theme: ${labels.currentLabel}. Switch to ${labels.nextLabel}`);
+          toggle.title = `Theme: ${labels.currentLabel}. Click to switch to ${labels.nextLabel}`;
+        };
+
+        let mode = getStoredMode();
+
+        toggle.addEventListener('click', () => {
+          mode = nextThemeMode(mode);
+          applyMode(mode);
+          renderButton(mode);
+        });
+
+        mediaQuery.addEventListener('change', () => {
+          if (mode === 'system') renderButton(mode);
+        });
+
+        applyMode(mode);
+        renderButton(mode);
+      }
+    </script>
   </body>
 </html>

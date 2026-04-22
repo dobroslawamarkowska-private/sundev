@@ -1,11 +1,20 @@
 /* ── Tokens ────────────────────────────────────────────────── */
 :root {
-  --color-bg:        #fafafa;
-  --color-surface:   #ffffff;
-  --color-text:      #1a1a1a;
-  --color-muted:     #666666;
-  --color-accent:    #2563eb;
-  --color-border:    #e5e5e5;
+  /* LIGHT THEME */
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --accent: #7c3aed;
+  --border: #e2e8f0;
+
+  /* Backward-compatible aliases used across existing styles */
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text-primary);
+  --color-muted: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
 
   --font-sans: system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
@@ -31,14 +40,37 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --color-bg:      #111111;
-    --color-surface: #1e1e1e;
-    --color-text:    #e5e5e5;
-    --color-muted:   #999999;
-    --color-accent:  #60a5fa;
-    --color-border:  #2a2a2a;
+  :root:not([data-theme="light"]) {
+    --bg: #0b1220;
+    --surface: #111827;
+    --text-primary: #e5e7eb;
+    --text-secondary: #9ca3af;
+    --accent: #a78bfa;
+    --border: #1f2937;
+
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-text: var(--text-primary);
+    --color-muted: var(--text-secondary);
+    --color-accent: var(--accent);
+    --color-border: var(--border);
   }
+}
+
+[data-theme="dark"] {
+  --bg: #0b1220;
+  --surface: #111827;
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --accent: #a78bfa;
+  --border: #1f2937;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text-primary);
+  --color-muted: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
 }
 
 /* ── Reset ─────────────────────────────────────────────────── */
@@ -55,29 +87,72 @@ html {
 }
 
 body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: system-ui, -apple-system, Inter, sans-serif;
+  line-height: 1.6;
+  margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
 a {
-  color: var(--color-accent);
-  text-decoration: underline;
-  text-underline-offset: 3px;
+  color: var(--accent);
+  text-decoration: none;
 }
-a:hover { text-decoration: none; }
+a:hover { text-decoration: underline; }
 
 img { max-width: 100%; height: auto; display: block; }
 
 /* ── Layout ────────────────────────────────────────────────── */
 .container {
   width: 100%;
-  max-width: 860px;
+  max-width: 720px;
   margin-inline: auto;
-  padding-inline: var(--space-6);
+  padding: 2rem 1.25rem;
 }
 
 main { flex: 1; padding-block: var(--space-12); }
+
+h1, h2, h3 {
+  line-height: 1.3;
+  margin-bottom: 0.5em;
+}
+
+p {
+  color: var(--text-secondary);
+}
+
+.article {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.article:last-child {
+  border-bottom: none;
+}
+
+.article-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-decoration: none;
+}
+
+.article-title:hover {
+  color: var(--accent);
+}
+
+.meta {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+}
+
+.article-link {
+  display: block;
+}
 
 /* ── Header ────────────────────────────────────────────────── */
 header {
@@ -112,6 +187,24 @@ nav a {
 }
 nav a:hover { color: var(--color-text); }
 
+.theme-toggle {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  border-radius: 6px;
+  padding: 0.2rem 0.55rem;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.theme-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
 /* ── Footer ────────────────────────────────────────────────── */
 footer {
   border-top: 1px solid var(--color-border);
@@ -135,11 +228,11 @@ footer {
 .prose h1 { font-size: var(--text-3xl); margin-top: 0; }
 .prose h2 { font-size: var(--text-2xl); }
 .prose h3 { font-size: var(--text-xl); }
-.prose p  { margin-bottom: var(--space-4); }
+.prose p  { margin-bottom: var(--space-4); color: var(--text-secondary); }
 .prose ul, .prose ol { margin-bottom: var(--space-4); padding-left: var(--space-6); }
 .prose li { margin-bottom: var(--space-1); }
 .prose blockquote {
-  border-left: 3px solid var(--color-accent);
+  border-left: 3px solid var(--accent);
   padding-left: var(--space-4);
   color: var(--color-muted);
   font-style: italic;
@@ -185,13 +278,19 @@ footer {
 /* ── Tags ──────────────────────────────────────────────────── */
 .tags { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-2); }
 .tag {
-  font-size: var(--text-sm);
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius);
-  padding: var(--space-1) var(--space-3);
-  color: var(--color-muted);
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  margin-right: 0.25rem;
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 /* ── Post header ───────────────────────────────────────────── */
