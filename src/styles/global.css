@@ -13,6 +13,7 @@
   --text-secondary: #6B5648;
   --title: #A87749;
   --link: rgb(86, 97, 157);
+  --header-brand: rgb(59, 47, 37);
 
   --accent: #1B2668;
   --accent-soft: #E8EAF6;
@@ -33,6 +34,7 @@ html[data-theme="light"] {
   --text-secondary: #6B5648;
   --title: #A87749;
   --link: rgb(86, 97, 157);
+  --header-brand: rgb(59, 47, 37);
 
   --accent: #1B2668;
   --accent-soft: #E8EAF6;
@@ -207,13 +209,26 @@ header {
   border-bottom: 1px solid var(--border);
 }
 
+header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 .site-name {
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--header-brand, var(--text-primary));
+  white-space: nowrap;
 }
 
 nav a {
   color: var(--link);
+}
+
+header nav {
+  margin-left: auto;
+  justify-content: flex-end;
 }
 
 footer {
@@ -253,6 +268,11 @@ footer {
   font-size: clamp(2rem, 3.7vw, 3rem);
   line-height: 1.08;
   margin: 0;
+  color: rgb(59, 47, 37);
+}
+
+.post-header h1 {
+  color: rgb(59, 47, 37);
 }
 
 .showcase-subtitle {
@@ -557,6 +577,18 @@ html[data-theme="dark"] code {
     border-top: 1px solid var(--border);
     padding-left: 0;
     padding-top: 0.8rem;
+  }
+}
+
+@media (max-width: 700px) {
+  header .container {
+    flex-wrap: wrap;
+  }
+
+  header nav {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
   }
 }
 
