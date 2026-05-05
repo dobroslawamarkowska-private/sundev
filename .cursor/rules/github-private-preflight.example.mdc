@@ -1,0 +1,24 @@
+---
+description: Example preflight block for private identity (sanitized)
+alwaysApply: false
+---
+
+# GitHub Private Preflight (Template)
+
+Copy this file to `github-private-preflight.mdc` locally and fill in your private values.
+
+```bash
+cd /path/to/repo && \
+git config --local core.sshCommand 'ssh -i ~/.ssh/<your_private_key> -o IdentitiesOnly=yes' && \
+git remote set-url origin git@<your-github-host-alias>:<your-org-or-user>/<your-repo>.git && \
+mkdir -p ~/.config/<your-gh-profile> && \
+GH_CONFIG_DIR=~/.config/<your-gh-profile> gh auth status && \
+git config --local --get core.sshCommand && \
+git remote -v
+```
+
+If GH auth is missing:
+
+```bash
+GH_CONFIG_DIR=~/.config/<your-gh-profile> gh auth login -h github.com -p https -w
+```

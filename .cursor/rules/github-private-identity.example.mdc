@@ -1,0 +1,22 @@
+---
+description: Example private Git/GitHub identity workflow (sanitized)
+alwaysApply: false
+---
+
+# Private GitHub Identity Workflow (Template)
+
+Copy this file to `github-private-identity.mdc` locally and fill in your private values.
+
+## Git (SSH) defaults
+- Example only:
+  - `git config --local core.sshCommand 'ssh -i ~/.ssh/<your_private_key> -o IdentitiesOnly=yes'`
+  - `git remote set-url origin git@<your-github-host-alias>:<your-org-or-user>/<your-repo>.git`
+
+## GitHub CLI defaults
+- Example only:
+  - `GH_CONFIG_DIR=~/.config/<your-gh-profile> gh ...`
+  - `GH_CONFIG_DIR=~/.config/<your-gh-profile> gh auth login -h github.com -p https -w`
+
+## Notes
+- Keep your real identity file outside git or ignored.
+- Do not commit private usernames, host aliases, or local key paths.

@@ -6,3 +6,5 @@ node_modules/
 .DS_Store
 .astro/
 ftp/
+.cursor/rules/github-private-identity.mdc
+.cursor/rules/github-private-preflight.mdc
