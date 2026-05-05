@@ -102,8 +102,8 @@ const fullTitle = title === siteName ? siteName : `${title} — ${siteName}`;
 
         const renderButton = (mode) => {
           const labels = getThemeLabels(mode);
-          toggle.textContent = labels.nextLabel;
-          toggle.setAttribute('aria-label', `Theme: ${labels.currentLabel}. Switch to ${labels.nextLabel}`);
+          toggle.textContent = `Theme: ${labels.currentLabel}`;
+          toggle.setAttribute('aria-label', `Theme: ${labels.currentLabel}. Click to switch to ${labels.nextLabel}`);
           toggle.title = `Theme: ${labels.currentLabel}. Click to switch to ${labels.nextLabel}`;
         };
 

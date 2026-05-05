@@ -9,50 +9,70 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
 const articles = (await getCollection('articles', ({ data }) => !data.draft))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
   .slice(0, 3);
+
+const featuredPosts = posts.slice(0, 3);
+const leadPost = posts[0];
+const leadArticle = articles[0];
 ---
 
 <BaseLayout title="sundev.pl" description="Personal blog and articles by a developer at sundev.pl">
-  <section style="margin-bottom: var(--space-16)">
-    <h2 class="section-heading">Recent Posts</h2>
-    {posts.length === 0
-      ? <p style="color: var(--color-muted)">No posts yet.</p>
-      : (
-        <ul class="post-list">
-          {posts.map((post) => (
-            <li class="post-item">
-              <time datetime={post.data.date.toISOString()}>
-                {post.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
-              </time>
-              <h2><a href={`/blog/${post.slug}`}>{post.data.title}</a></h2>
-              <p>{post.data.description}</p>
-              {post.data.tags.length > 0 && (
-                <div class="tags">
-                  {post.data.tags.map(tag => <span class="tag">{tag}</span>)}
-                </div>
-              )}
-            </li>
-          ))}
-        </ul>
-      )
-    }
-    <p style="margin-top: var(--space-8)"><a href="/blog">All posts →</a></p>
+  <section class="showcase">
+    <div class="showcase-hero">
+      <p class="showcase-kicker">sundev.pl</p>
+      <h1>Recent Posts & Articles</h1>
+      <p class="showcase-subtitle">
+        Personal blog and articles by a developer at sundev.pl. Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+      </p>
+      <div class="showcase-actions">
+        <a href="/blog">Blog</a>
+        <a href="/articles">Articles</a>
+        <a href="/about">About</a>
+      </div>
+    </div>
+    <div class="showcase-media" aria-hidden="true">
+      <div class="showcase-placeholder">Image Placeholder</div>
+    </div>
   </section>
 
-  {articles.length > 0 && (
-    <section>
-      <h2 class="section-heading">Articles</h2>
-      <ul class="post-list">
-        {articles.map((article) => (
-          <li class="post-item">
-            <time datetime={article.data.date.toISOString()}>
-              {article.data.date.toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </time>
-            <h2><a href={`/articles/${article.slug}`}>{article.data.title}</a></h2>
-            <p>{article.data.description}</p>
+  {featuredPosts.length > 0 && (
+    <section class="toolbox">
+      <p class="toolbox-kicker">Recent Posts</p>
+      <ul class="toolbox-grid">
+        {featuredPosts.map((post) => (
+          <li class="toolbox-card">
+            <h2><a href={`/blog/${post.slug}`}>{post.data.title}</a></h2>
+            <p>{post.data.description}</p>
+            <div class="tags">
+              {post.data.tags.length > 0
+                ? post.data.tags.slice(0, 2).map((tag) => <span class="tag">{tag}</span>)
+                : <span class="tag">post</span>}
+            </div>
           </li>
         ))}
       </ul>
-      <p style="margin-top: var(--space-8)"><a href="/articles">All articles →</a></p>
     </section>
   )}
+
+  <section class="deep-dive">
+    <div>
+      <p class="deep-dive-kicker">Articles</p>
+      <h2>Latest long-form content.</h2>
+      <p>
+        {leadArticle ? leadArticle.data.description : 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'}
+      </p>
+      {leadPost && (
+        <pre><code>{`// latest practical note
+const latestPost = "${leadPost.data.title}";
+const publishedOn = "${leadPost.data.date.toISOString().slice(0, 10)}";
+const focus = ["blog", "articles", "engineering notes"];`}</code></pre>
+      )}
+    </div>
+    <aside class="deep-dive-sidebar">
+      <h3>Technical Sidebar</h3>
+      <a href="/blog">Blog</a>
+      <a href="/articles">Articles</a>
+      <a href="/about">About</a>
+      {leadArticle && <a href={`/articles/${leadArticle.slug}`}>Featured Article</a>}
+    </aside>
+  </section>
 </BaseLayout>
