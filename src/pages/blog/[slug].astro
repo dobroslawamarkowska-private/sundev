@@ -21,7 +21,7 @@ const { Content } = await post.render();
         </time>
       </div>
       {post.data.tags.length > 0 && (
-        <div class="tags" style="margin-top: var(--space-3)">
+        <div class="tags">
           {post.data.tags.map(tag => <span class="tag">{tag}</span>)}
         </div>
       )}
